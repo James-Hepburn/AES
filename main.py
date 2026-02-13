@@ -16,7 +16,7 @@ def words_to_round_keys (words):
     round_keys = []
 
     for i in range (0, len (words), 4):
-        round_key = [list (words [j]) for j in range (i, i + 4)]
+        round_key = [[words [i + col][row] for col in range (4)] for row in range (4)]
         round_keys.append (round_key)
 
     return round_keys
