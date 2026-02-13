@@ -23,3 +23,10 @@ def sub_bytes (state):
             state [i][j] = S_BOX [state [i][j]]
 
     return state
+
+# Performs the AES ShiftRows step on the 4x4 state matrix.
+def shift_rows (state):
+    state [1][0], state [1][1], state [1][2], state [1][3] = state [1][1], state [1][2], state [1][3], state [1][0]
+    state [2][0], state [2][1], state [2][2], state [2][3] = state [2][2], state [2][3], state [2][0], state [2][1]
+    state [3][0], state [3][1], state [3][2], state [3][3] = state [3][3], state [3][0], state [3][1], state [3][2] 
+    return state
