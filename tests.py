@@ -5,9 +5,9 @@ individually using small examples and official NIST vectors.
 '''
 
 from state import create_state, state_to_bytes, pretty_print
-from transformations import add_round_key, sub_bytes, shift_rows, mix_columns
-from key_schedule import expand_key, xor_words, rot_word, sub_word, RCON
-from main import words_to_round_keys, encrypt
+from transformations import add_round_key, sub_bytes, shift_rows, mix_columns, inv_sub_bytes, inv_shift_rows, inv_mix_columns
+from key_schedule import expand_key
+from main import words_to_round_keys, encrypt, decrypt
 
 # State representation tests
 def test_state_conversion ():
@@ -74,6 +74,42 @@ def test_full_encryption ():
     assert ciphertext == expected_ciphertext, f"Full encryption failed! Got {ciphertext}"
     print ("Full encryption passed!")
 
+# Inverse transformations tests
+def test_inv_sub_bytes ():
+    print ("Testing InvSubBytes...")
+    state = create_state ([0x63] * 16)  
+    transformed = inv_sub_bytes (state)
+    for row in transformed:
+        for byte in row:
+            assert byte == 0x00, f"InvSubBytes failed! Got {byte}"
+    print ("InvSubBytes passed.")
+
+def test_inv_shift_rows ():
+    print ("Testing InvShiftRows...")
+    state = create_state (list (range (16)))
+    shifted = inv_shift_rows (state)
+    pretty_print (shifted)
+    print ("InvShiftRows visual check done.")
+
+def test_inv_mix_columns ():
+    print ("Testing InvMixColumns...")
+    state = create_state ([0x8e,0x4d,0xa1,0xbc, 0,0,0,0,0,0,0,0,0,0,0,0])
+    inv_mixed = inv_mix_columns (state)
+    first_col = [inv_mixed [i][0] for i in range (4)]
+    expected = [0xdb,0x13,0x53,0x45]  
+    assert first_col == expected, f"InvMixColumns failed! Got {first_col}"
+    print ("InvMixColumns passed.")
+
+# Full decryption test
+def test_full_decryption ():
+    print ("Testing full AES-128 decryption...")
+    key = [0x2b,0x7e,0x15,0x16,0x28,0xae,0xd2,0xa6,0xab,0xf7,0x15,0x88,0x09,0xcf,0x4f,0x3c]
+    plaintext = [0x32,0x43,0xf6,0xa8,0x88,0x5a,0x30,0x8d,0x31,0x31,0x98,0xa2,0xe0,0x37,0x07,0x34]
+    ciphertext = encrypt (plaintext, key)
+    decrypted = decrypt (ciphertext, key)
+    assert decrypted == plaintext, f"Full decryption failed! Got {decrypted}"
+    print ("Full decryption passed!")
+
 # Run all tests
 if __name__ == "__main__":
     test_state_conversion ()
@@ -83,4 +119,8 @@ if __name__ == "__main__":
     test_add_round_key ()
     test_key_expansion ()
     test_full_encryption ()
+    test_inv_sub_bytes ()
+    test_inv_shift_rows ()
+    test_inv_mix_columns ()
+    test_full_decryption ()
     print ("\nAll AES tests completed successfully!")
