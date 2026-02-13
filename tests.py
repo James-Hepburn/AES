@@ -1,4 +1,45 @@
 '''
-tests.py
-    - official test vectors
+Tests for AES-128 encryption implementation.
+Verifies correctness using official NIST AES-128 test vectors.
+Each test asserts that the ciphertext produced by the encrypt function
+matches the expected ciphertext exactly.
 '''
+
+from main import encrypt
+
+# Encrypts a single block and checks against the expected ciphertext.
+def test_aes128_vector (plaintext, key, expected_ciphertext):
+    result = encrypt (plaintext, key)
+    assert result == expected_ciphertext, (
+        f"Test failed!\n"
+        f"Key:        {key}\n"
+        f"Plaintext:  {plaintext}\n"
+        f"Expected:   {expected_ciphertext}\n"
+        f"Got:        {result}"
+    )
+    print ("Test passed for plaintext:", plaintext)
+
+
+if __name__ == "__main__":
+    test_vectors = [
+        {
+            "key": [0x2b,0x7e,0x15,0x16,0x28,0xae,0xd2,0xa6,0xab,0xf7,0x15,0x88,0x09,0xcf,0x4f,0x3c],
+            "plaintext": [0x32,0x43,0xf6,0xa8,0x88,0x5a,0x30,0x8d,0x31,0x31,0x98,0xa2,0xe0,0x37,0x07,0x34],
+            "ciphertext": [0x39,0x25,0x84,0x1d,0x02,0xdc,0x09,0xfb,0xdc,0x11,0x85,0x97,0x19,0x6a,0x0b,0x32]
+        },
+        {
+            "key": [0x00]*16,
+            "plaintext": [0x00]*16,
+            "ciphertext": [0x66,0xe9,0x4b,0xd4,0xef,0x8a,0x2c,0x3b,0x88,0x5b,0x19,0x7f,0xa0,0x3f,0x50,0x0a]
+        },
+        {
+            "key": [0xff]*16,
+            "plaintext": [0xff]*16,
+            "ciphertext": [0x5f,0x72,0xe3,0x0b,0xd9,0x6b,0x2f,0xd1,0xd2,0x88,0x7c,0x2e,0x33,0x3f,0xf7,0x37]
+        },
+    ]
+
+    for vector in test_vectors:
+        test_aes128_vector (vector ["plaintext"], vector ["key"], vector[ "ciphertext"])
+
+    print ("\nAll AES-128 tests passed successfully!")
